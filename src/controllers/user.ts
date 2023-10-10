@@ -20,3 +20,26 @@ export const getUser = (req: Request, res: Response) => {
   const { userId } = req.params;
   UserModel.find({ _id: userId }).then((user) => res.send({ user }));
 };
+
+export const updateUser = (req: Request, res: Response) => {
+  // @ts-ignore
+  const userId = req.user._id;
+  const { name, about } = req.body;
+  UserModel.findByIdAndUpdate(
+    userId,
+    { name, about },
+    { new: true },
+  )
+    .then((user) => res.send(user));
+};
+
+export const updateUserAvatar = (req: Request, res: Response) => {
+  // @ts-ignore
+  const userId = req.user._id;
+  const { avatar } = req.body;
+  UserModel.findByIdAndUpdate(
+    userId,
+    { avatar },
+    { new: true },
+  ).then((user) => res.send(user));
+};
