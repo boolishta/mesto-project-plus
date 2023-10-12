@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
-import { sendErrorFindCardById, failFindCardById, ERROR_MESSAGE } from '../errors/index';
+import { ERROR_MESSAGE, failFindById, sendError } from '../errors/index';
 import CardModel from '../models/card';
 
 const createCard = async (req: Request, res: Response) => {
@@ -33,10 +33,10 @@ const getCards = async (req: Request, res: Response) => {
 
 const deleteCard = async (req: Request, res: Response) => {
   try {
-    await CardModel.findByIdAndDelete(req.params.cardId).orFail(failFindCardById);
+    await CardModel.findByIdAndDelete(req.params.cardId).orFail(() => failFindById('NoCardById'));
     return res.send({ message: 'Карточка удалена' });
   } catch (error: any) {
-    return sendErrorFindCardById(error, res);
+    return sendError(error, res);
   }
 };
 
@@ -47,10 +47,10 @@ const likeCard = async (req: Request, res: Response) => {
       // @ts-ignore
       { $addToSet: { likes: req.user._id } },
       { new: true },
-    ).orFail(failFindCardById);
+    ).orFail(() => failFindById('NoCardById'));
     return res.status(200).send(card);
   } catch (error: any) {
-    return sendErrorFindCardById(error, res);
+    return sendError(error, res);
   }
 };
 
@@ -61,10 +61,10 @@ const dislikeCard = async (req: Request, res: Response) => {
       // @ts-ignore
       { $pull: { likes: req.user._id } },
       { new: true },
-    ).orFail(failFindCardById);
+    ).orFail(() => failFindById('NoCardById'));
     return res.status(200).send(card);
   } catch (error: any) {
-    return sendErrorFindCardById(error, res);
+    return sendError(error, res);
   }
 };
 
