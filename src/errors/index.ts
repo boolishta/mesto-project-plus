@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 
 export const ERROR_MESSAGE = {
   Validation: 'Ошибка валидации полей',
-  Server: 'Ошибка на стороне сервера',
+  Server: 'На сервере произошла ошибка.',
   Client: 'Ошибка на стороне клиента',
   NoCardById: 'Нет карточки по заданному id',
   NotValidId: 'Не валидный id',
