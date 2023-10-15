@@ -1,6 +1,5 @@
 import { Request, Response } from 'express';
-import mongoose from 'mongoose';
-import { ERROR_MESSAGE, failFindById, sendError } from '../errors/index';
+import { failFind, sendError } from '../errors/index';
 import CardModel from '../models/card';
 
 const createCard = async (req: Request, res: Response) => {
@@ -15,10 +14,7 @@ const createCard = async (req: Request, res: Response) => {
     });
     return res.status(201).send(card);
   } catch (error) {
-    if (error instanceof mongoose.Error.ValidationError) {
-      return res.status(400).send({ ...error, message: ERROR_MESSAGE.Validation });
-    }
-    return res.status(500).send({ message: ERROR_MESSAGE.Server, error });
+    return sendError(error, res);
   }
 };
 
@@ -27,15 +23,15 @@ const getCards = async (req: Request, res: Response) => {
     const cards = await CardModel.find();
     return res.status(200).send(cards);
   } catch (error) {
-    return res.status(500).send({ message: ERROR_MESSAGE.Client, error });
+    return sendError(error, res);
   }
 };
 
 const deleteCard = async (req: Request, res: Response) => {
   try {
-    await CardModel.findByIdAndDelete(req.params.cardId).orFail(() => failFindById('NoCardById'));
+    await CardModel.findByIdAndDelete(req.params.cardId).orFail(() => failFind('NoCardById'));
     return res.send({ message: 'Карточка удалена' });
-  } catch (error: any) {
+  } catch (error) {
     return sendError(error, res);
   }
 };
@@ -47,9 +43,9 @@ const likeCard = async (req: Request, res: Response) => {
       // @ts-ignore
       { $addToSet: { likes: req.user._id } },
       { new: true },
-    ).orFail(() => failFindById('NoCardById'));
+    ).orFail(() => failFind('NoCardById'));
     return res.status(200).send(card);
-  } catch (error: any) {
+  } catch (error) {
     return sendError(error, res);
   }
 };
@@ -61,9 +57,9 @@ const dislikeCard = async (req: Request, res: Response) => {
       // @ts-ignore
       { $pull: { likes: req.user._id } },
       { new: true },
-    ).orFail(() => failFindById('NoCardById'));
+    ).orFail(() => failFind('NoCardById'));
     return res.status(200).send(card);
-  } catch (error: any) {
+  } catch (error) {
     return sendError(error, res);
   }
 };
