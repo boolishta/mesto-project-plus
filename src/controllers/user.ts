@@ -1,6 +1,17 @@
 import { Request, Response } from 'express';
-import { failFindById, ERROR_MESSAGE, sendError } from '../errors/index';
+import { failFind, sendError } from '../errors/index';
 import UserModel from '../models/user';
+
+export const login = async (req: Request, res: Response) => {
+  try {
+    const { email, password } = req.body;
+    const user = await UserModel
+      .findUserByCredentials(email, password);
+    return user;
+  } catch (error) {
+    return sendError(error, res);
+  }
+};
 
 export const createUser = async (req: Request, res: Response) => {
   try {
@@ -21,14 +32,14 @@ export const getUsers = async (req: Request, res: Response) => {
     const user = await UserModel.find();
     return res.status(200).send(user);
   } catch (error) {
-    return res.status(500).send({ message: ERROR_MESSAGE.Server, error });
+    return sendError(error, res);
   }
 };
 
 export const getUser = async (req: Request, res: Response) => {
   try {
     const { userId } = req.params;
-    const user = await UserModel.findById(userId).orFail(() => failFindById('NoUserById'));
+    const user = await UserModel.findById(userId).orFail(() => failFind('NoUserById'));
     return res.status(200).send(user);
   } catch (error) {
     return sendError(error, res);
@@ -44,7 +55,7 @@ export const updateUser = async (req: Request, res: Response) => {
       userId,
       { name, about },
       { new: true },
-    );
+    ).orFail(() => failFind('NoUserById'));
     return res.status(200).send(user);
   } catch (error) {
     return sendError(error, res);
@@ -60,7 +71,7 @@ export const updateUserAvatar = async (req: Request, res: Response) => {
       userId,
       { avatar },
       { new: true },
-    );
+    ).orFail(() => failFind('NoUserById'));
     return res.status(200).send(user);
   } catch (error) {
     return sendError(error, res);
