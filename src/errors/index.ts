@@ -9,6 +9,7 @@ export const ERROR_MESSAGE = {
   NotValidId: 'Не валидный id',
   NoUserById: 'Нет пользователя по заданному id',
   IncorrectEmailOrPassword: 'Неправильные почта или пароль',
+  AuthorizationRequired: 'Необходима авторизация',
 };
 
 export const ERROR_NAME = {
@@ -49,4 +50,10 @@ export const sendError = (
   }
 
   return res.status(500).send({ message: ERROR_MESSAGE.Server });
+};
+
+export const handleAuthError = (res: Response) => {
+  res
+    .status(401)
+    .send({ message: ERROR_MESSAGE.AuthorizationRequired });
 };
