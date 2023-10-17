@@ -1,12 +1,11 @@
 import { Router } from 'express';
 import {
   updateUserAvatar,
-  updateUser, createUser, getUser, getUsers,
+  updateUser, getUser, getUsers,
 } from '../controllers/user';
 
 const router = Router();
 
-router.post('/', createUser);
 router.get('/', getUsers);
 router.get('/:userId', getUser);
 router.patch('/me/avatar', updateUserAvatar);

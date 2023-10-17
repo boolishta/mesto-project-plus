@@ -3,13 +3,19 @@ import jwt from 'jsonwebtoken';
 import { failFind, sendError } from '../errors/index';
 import UserModel from '../models/user';
 
+const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
+
 export const createUser = async (req: Request, res: Response) => {
   try {
-    const { name, about, avatar } = req.body;
+    const {
+      name, about, avatar, email, password,
+    } = req.body;
     const user = await UserModel.create({
       name,
       about,
       avatar,
+      email,
+      password,
     });
     return res.status(200).send(user);
   } catch (error) {
@@ -78,7 +84,11 @@ export const login = async (req: Request, res: Response) => {
       'some-secret-key',
       { expiresIn: '7d' },
     );
-    return res.send({ token });
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      maxAge: SEVEN_DAYS,
+    });
+    return res.status(200).send({ message: 'Вход успешен' });
   } catch (error) {
     return sendError(error, res);
   }
