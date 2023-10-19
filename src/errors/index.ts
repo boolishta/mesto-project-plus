@@ -1,4 +1,4 @@
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 
 export const ERROR_MESSAGE = {
@@ -16,6 +16,12 @@ export const ERROR_NAME = {
   NotFoundError: 'NotFoundError',
   Unauthorized: 'Unauthorized',
 };
+
+export type StatusCode = 404 | 401
+
+export interface StatusCodeError extends Error {
+  statusCode?: StatusCode
+}
 
 type ErrorMessageKey = keyof typeof ERROR_MESSAGE;
 type ErrorNameKey = keyof typeof ERROR_NAME
@@ -56,4 +62,14 @@ export const handleAuthError = (res: Response) => {
   res
     .status(401)
     .send({ message: ERROR_MESSAGE.AuthorizationRequired });
+};
+
+// TODO: create handle errors
+export const errorHandler = (error: StatusCodeError, req: Request, res: Response) => {
+  const { statusCode = 500, message } = error;
+  return res.status(statusCode).send({
+    message: statusCode === 500
+      ? ERROR_MESSAGE.Server
+      : message,
+  });
 };

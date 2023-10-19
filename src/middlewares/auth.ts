@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { SECRET_KEY } from '../config';
 import { handleAuthError } from '../errors';
 
 export interface SessionRequest extends Request {
@@ -18,14 +19,15 @@ export default (
   if (!authorization || !authorization.startsWith('Bearer ')) {
     return handleAuthError(res);
   }
-  const token = extractBearerToken(authorization);
-  let payload;
   try {
-    payload = jwt.verify(token, 'some-secret-key');
+    const token = extractBearerToken(authorization);
+    if (SECRET_KEY) {
+      const payload = jwt.verify(token, SECRET_KEY);
+      req.user = payload;
+    }
+    next();
   } catch (error) {
     return handleAuthError(res);
   }
-  req.user = payload;
-  next();
-  return payload;
+  return null;
 };

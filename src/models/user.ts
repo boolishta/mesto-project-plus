@@ -1,7 +1,8 @@
 import mongoose, { Model, Document } from 'mongoose';
 import validator from 'validator';
 import bcrypt from 'bcrypt';
-import { failFind } from '../errors';
+import { NotFoundError } from '../errors/not-found';
+import { ERROR_MESSAGE } from '../errors';
 
 interface User {
   name: string
@@ -53,9 +54,15 @@ async function findUserByCredentials(
   email: string,
   password: string,
 ) {
-  const user = await this.findOne({ email }).orFail(() => failFind('IncorrectEmailOrPassword', 'Unauthorized'));
+  const user = await this.findOne({ email })
+    .orFail(() => {
+      throw new NotFoundError(ERROR_MESSAGE.IncorrectEmailOrPassword);
+    });
   const matched = await bcrypt.compare(password, user.password);
-  return matched ? user : failFind('IncorrectEmailOrPassword', 'Unauthorized');
+  if (!matched) {
+    throw new NotFoundError(ERROR_MESSAGE.IncorrectEmailOrPassword);
+  }
+  return user;
 }
 
 userSchema.static(
