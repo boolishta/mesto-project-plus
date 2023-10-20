@@ -10,6 +10,7 @@ export const ERROR_MESSAGE = {
   NoUserById: 'Нет пользователя по заданному id',
   IncorrectEmailOrPassword: 'Неправильные почта или пароль',
   AuthorizationRequired: 'Необходима авторизация',
+  DuplicateEmail: 'Пользователь с таким email существует',
 };
 
 export const ERROR_NAME = {
@@ -17,7 +18,7 @@ export const ERROR_NAME = {
   Unauthorized: 'Unauthorized',
 };
 
-export type StatusCode = 404 | 401
+export type StatusCode = 404 | 401 | 409
 
 export interface StatusCodeError extends Error {
   statusCode?: StatusCode

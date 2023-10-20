@@ -33,6 +33,13 @@ const userSchema = new mongoose.Schema<User, UserModel>({
   avatar: {
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    validate: {
+      validator(v: string) {
+        const urlPattern = /^(https?:\/\/)?(www\.)?([\w.-]+)\.([a-z]{2,6})([/\w.-]*)*/;
+        return urlPattern.test(v);
+      },
+      message: 'Неверный формат URL',
+    },
   },
   email: {
     type: String,
@@ -46,6 +53,7 @@ const userSchema = new mongoose.Schema<User, UserModel>({
   password: {
     type: String,
     required: true,
+    select: false,
   },
 });
 
@@ -54,7 +62,7 @@ async function findUserByCredentials(
   email: string,
   password: string,
 ) {
-  const user = await this.findOne({ email })
+  const user = await this.findOne({ email }).select('+password')
     .orFail(() => {
       throw new NotFoundError(ERROR_MESSAGE.IncorrectEmailOrPassword);
     });

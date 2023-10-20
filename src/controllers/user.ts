@@ -1,9 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import {
+  errorHandler, ERROR_MESSAGE, failFind, sendError,
+} from '../errors/index';
+import { DuplicateError } from '../errors/duplicate';
 import { SECRET_KEY } from '../config';
 import { SessionRequest } from '../middlewares/auth';
-import { failFind, sendError } from '../errors/index';
 import UserModel from '../models/user';
 
 const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
@@ -13,7 +16,6 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
     const {
       name, about, avatar, email, password,
     } = req.body;
-    // TODO: add celebrate validation
     const user = await UserModel.create({
       name,
       about,
@@ -22,7 +24,14 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
       password: await bcrypt.hash(password, 10),
     });
     return res.status(200).send(user);
-  } catch (error) {
+  } catch (error: any) {
+    if (error.code === 11000) {
+      return errorHandler(
+        new DuplicateError(ERROR_MESSAGE.DuplicateEmail),
+        req,
+        res,
+      );
+    }
     next(error);
     return null;
   }
