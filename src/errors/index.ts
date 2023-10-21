@@ -11,6 +11,8 @@ export const ERROR_MESSAGE = {
   IncorrectEmailOrPassword: 'Неправильные почта или пароль',
   AuthorizationRequired: 'Необходима авторизация',
   DuplicateEmail: 'Пользователь с таким email существует',
+  NotValidUrl: 'Не верный формат URL',
+  NotValidEmail: 'Неправильный формат почты',
 };
 
 export const ERROR_NAME = {
@@ -18,7 +20,7 @@ export const ERROR_NAME = {
   Unauthorized: 'Unauthorized',
 };
 
-export type StatusCode = 404 | 401 | 409
+export type StatusCode = 404 | 401 | 409 | 400
 
 export interface StatusCodeError extends Error {
   statusCode?: StatusCode
@@ -64,8 +66,7 @@ export const handleAuthError = (res: Response) => {
     .status(401)
     .send({ message: ERROR_MESSAGE.AuthorizationRequired });
 };
-
-// TODO: create handle errors
+// TODO: card errors, import other errors
 export const errorHandler = (error: StatusCodeError, req: Request, res: Response) => {
   const { statusCode = 500, message } = error;
   return res.status(statusCode).send({

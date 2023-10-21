@@ -34,11 +34,8 @@ const userSchema = new mongoose.Schema<User, UserModel>({
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
     validate: {
-      validator(v: string) {
-        const urlPattern = /^(https?:\/\/)?(www\.)?([\w.-]+)\.([a-z]{2,6})([/\w.-]*)*/;
-        return urlPattern.test(v);
-      },
-      message: 'Неверный формат URL',
+      validator: (v: string) => validator.isURL(v),
+      message: ERROR_MESSAGE.NotValidUrl,
     },
   },
   email: {
@@ -47,7 +44,7 @@ const userSchema = new mongoose.Schema<User, UserModel>({
     required: true,
     validate: {
       validator: (v: string) => validator.isEmail(v),
-      message: 'Неправильный формат почты',
+      message: ERROR_MESSAGE.NotValidEmail,
     },
   },
   password: {
