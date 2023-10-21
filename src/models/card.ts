@@ -1,4 +1,6 @@
 import mongoose from 'mongoose';
+import validator from 'validator';
+import { ERROR_MESSAGE } from '../errors/index';
 
 interface Card {
   likes: mongoose.Schema.Types.ObjectId[]
@@ -22,6 +24,10 @@ const cardSchema = new mongoose.Schema<Card>({
   link: {
     type: String,
     required: true,
+    validate: {
+      validator: (v: string) => validator.isURL(v),
+      message: ERROR_MESSAGE.NotValidUrl,
+    },
   },
   createdAt: {
     type: Date,

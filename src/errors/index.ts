@@ -13,6 +13,7 @@ export const ERROR_MESSAGE = {
   DuplicateEmail: 'Пользователь с таким email существует',
   NotValidUrl: 'Не верный формат URL',
   NotValidEmail: 'Неправильный формат почты',
+  SomeoneElsesCard: 'Чужая карточка',
 };
 
 export const ERROR_NAME = {
@@ -20,7 +21,7 @@ export const ERROR_NAME = {
   Unauthorized: 'Unauthorized',
 };
 
-export type StatusCode = 404 | 401 | 409 | 400
+export type StatusCode = 404 | 401 | 409 | 400 | 403
 
 export interface StatusCodeError extends Error {
   statusCode?: StatusCode

@@ -1,12 +1,15 @@
-import { Request, Response } from 'express';
-import { failFind, sendError } from '../errors/index';
+import { Request, Response, NextFunction } from 'express';
+import { ForbiddenError } from '../errors/forbidden';
+import { ERROR_MESSAGE } from '../errors/index';
+import { NotFoundError } from '../errors/not-found';
+import { SessionRequest } from '../middlewares/auth';
+import { getUserIdFromRequest } from './user';
 import CardModel from '../models/card';
 
-const createCard = async (req: Request, res: Response) => {
+const createCard = async (req: SessionRequest, res: Response, next: NextFunction) => {
   try {
     const { name, link } = req.body;
-    // @ts-ignore
-    const userId = req.user._id;
+    const userId = getUserIdFromRequest(req);
     const card = await CardModel.create({
       name,
       link,
@@ -14,53 +17,69 @@ const createCard = async (req: Request, res: Response) => {
     });
     return res.status(201).send(card);
   } catch (error) {
-    return sendError(error, res);
+    next(error);
+    return null;
   }
 };
 
-const getCards = async (req: Request, res: Response) => {
+const getCards = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const cards = await CardModel.find();
     return res.status(200).send(cards);
   } catch (error) {
-    return sendError(error, res);
+    next(error);
+    return null;
   }
 };
 
-const deleteCard = async (req: Request, res: Response) => {
+const deleteCard = async (req: SessionRequest, res: Response, next: NextFunction) => {
   try {
-    await CardModel.findByIdAndDelete(req.params.cardId).orFail(() => failFind('NoCardById'));
-    return res.send({ message: 'Карточка удалена' });
+    const card = await CardModel.findById(req.params.cardId).orFail(() => {
+      throw new NotFoundError(ERROR_MESSAGE.NoCardById);
+    });
+    const userId = getUserIdFromRequest(req);
+    if (userId !== card.owner.toString()) {
+      throw new ForbiddenError(ERROR_MESSAGE.SomeoneElsesCard);
+    }
+    card.remove();
+    return res.status(200).send({ message: 'Карточка удалена' });
   } catch (error) {
-    return sendError(error, res);
+    next(error);
+    return null;
   }
 };
 
-const likeCard = async (req: Request, res: Response) => {
+const likeCard = async (req: SessionRequest, res: Response, next: NextFunction) => {
   try {
+    const userId = getUserIdFromRequest(req);
     const card = await CardModel.findByIdAndUpdate(
       req.params.cardId,
-      // @ts-ignore
-      { $addToSet: { likes: req.user._id } },
+      { $addToSet: { likes: userId } },
       { new: true },
-    ).orFail(() => failFind('NoCardById'));
+    ).orFail(() => {
+      throw new NotFoundError(ERROR_MESSAGE.NoCardById);
+    });
     return res.status(200).send(card);
   } catch (error) {
-    return sendError(error, res);
+    next(error);
+    return null;
   }
 };
 
-const dislikeCard = async (req: Request, res: Response) => {
+const dislikeCard = async (req: Request, res: Response, next: NextFunction) => {
   try {
+    const userId = getUserIdFromRequest(req);
     const card = await CardModel.findByIdAndUpdate(
       req.params.cardId,
-      // @ts-ignore
-      { $pull: { likes: req.user._id } },
+      { $pull: { likes: userId } },
       { new: true },
-    ).orFail(() => failFind('NoCardById'));
+    ).orFail(() => {
+      throw new NotFoundError(ERROR_MESSAGE.NoCardById);
+    });
     return res.status(200).send(card);
   } catch (error) {
-    return sendError(error, res);
+    next(error);
+    return null;
   }
 };
 

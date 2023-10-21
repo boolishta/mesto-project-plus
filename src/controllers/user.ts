@@ -14,7 +14,7 @@ import { SessionRequest } from '../middlewares/auth';
 
 const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 
-const getUserIdFromRequest = (req: SessionRequest) => {
+export const getUserIdFromRequest = (req: SessionRequest) => {
   const currentUserId = (typeof req.user === 'string') ? req.user : req.user?._id;
 
   if (!currentUserId) {
