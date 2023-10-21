@@ -9,12 +9,14 @@ import auth from './middlewares/auth';
 import { DB_HOST, PORT } from './config';
 import users from './routes/users';
 import cards from './routes/cards';
+import { requestLogger, errorLogger } from './middlewares/logger';
 
 const app = express();
 
 mongoose.connect(DB_HOST);
 
 app.use(express.json());
+app.use(requestLogger);
 app.post('/signin', celebrate({
   [Segments.BODY]: Joi.object().keys({
     email: Joi.string().email().required(),
@@ -33,6 +35,8 @@ app.post('/signup', celebrate({
 app.use(auth);
 app.use('/users', users);
 app.use('/cards', cards);
+
+app.use(errorLogger);
 
 app.use(errors());
 
