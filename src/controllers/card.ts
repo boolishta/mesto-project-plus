@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ForbiddenError } from '../errors/forbidden';
-import { ERROR_MESSAGE } from '../errors/index';
-import { NotFoundError } from '../errors/not-found';
+import { NotFoundError, ERROR_MESSAGE } from '../errors';
 import { SessionRequest } from '../middlewares/auth';
 import { getUserIdFromRequest } from './user';
 import CardModel from '../models/card';

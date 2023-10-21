@@ -1,4 +1,4 @@
-import { StatusCodeError, StatusCode } from './index';
+import { StatusCode, StatusCodeError } from './type';
 
 export class DuplicateError extends Error implements StatusCodeError {
   statusCode?: StatusCode;

@@ -2,12 +2,13 @@ import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 import validator from 'validator';
-import { NotValidError } from '../errors/not-valid';
+import {
+  NotValidError,
+  errorHandler,
+  ERROR_MESSAGE,
+} from '../errors';
 import UserModel from '../models/user';
 import { NotFoundError } from '../errors/not-found';
-import {
-  errorHandler, ERROR_MESSAGE,
-} from '../errors/index';
 import { DuplicateError } from '../errors/duplicate';
 import { SECRET_KEY } from '../config';
 import { SessionRequest } from '../middlewares/auth';

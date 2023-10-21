@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import validator from 'validator';
-import { ERROR_MESSAGE } from '../errors/index';
+import { ERROR_MESSAGE } from '../errors';
 
 interface Card {
   likes: mongoose.Schema.Types.ObjectId[]

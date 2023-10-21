@@ -1,4 +1,4 @@
-import { StatusCodeError, StatusCode } from './index';
+import { StatusCodeError, StatusCode } from './type';
 
 export class NotFoundError extends Error implements StatusCodeError {
   statusCode?: StatusCode;
