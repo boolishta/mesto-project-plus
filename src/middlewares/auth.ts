@@ -22,10 +22,8 @@ export default (
   }
   try {
     const token = extractBearerToken(authorization);
-    if (SECRET_KEY) {
-      const payload = jwt.verify(token, SECRET_KEY);
-      req.user = payload;
-    }
+    const payload = jwt.verify(token, SECRET_KEY);
+    req.user = payload;
     next();
   } catch (error) {
     next(error);
