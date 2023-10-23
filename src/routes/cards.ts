@@ -1,40 +1,23 @@
-import { Segments, Joi, celebrate } from 'celebrate';
+import { celebrate } from 'celebrate';
 import { Router } from 'express';
-import { URL_PATTERN } from '../consts';
+import { VALIDATION_OPTIONS } from '../validation';
 import { SessionRequest } from '../middlewares/auth';
 import {
   getCards, createCard, deleteCard, likeCard, dislikeCard,
 } from '../controllers/card';
 
 const router = Router();
-router.post('/', celebrate({
-  [Segments.BODY]: Joi.object().keys({
-    name: Joi.string().min(2).max(30).required(),
-    link: Joi.string().required().pattern(URL_PATTERN),
-  }),
-}), (req, res, next) => createCard(req as SessionRequest, res, next));
+router.post('/', celebrate(VALIDATION_OPTIONS.CREATE_CARD), (req, res, next) => createCard(req as SessionRequest, res, next));
 router.get('/', getCards);
-router.delete('/:cardId', celebrate({
-  [Segments.PARAMS]: {
-    cardId: Joi.string().required(),
-  },
-}), (req, res, next) => {
+router.delete('/:cardId', celebrate(VALIDATION_OPTIONS.DELETE_CARD), (req, res, next) => {
   const sessionReq = req as unknown as SessionRequest;
   deleteCard(sessionReq, res, next);
 });
-router.delete('/:cardId/likes', celebrate({
-  [Segments.PARAMS]: {
-    cardId: Joi.string().required(),
-  },
-}), (req, res, next) => {
+router.delete('/:cardId/likes', celebrate(VALIDATION_OPTIONS.DISLIKE_CARD), (req, res, next) => {
   const sessionReq = req as unknown as SessionRequest;
   dislikeCard(sessionReq, res, next);
 });
-router.put('/:cardId/likes', celebrate({
-  [Segments.PARAMS]: {
-    cardId: Joi.string().required(),
-  },
-}), (req, res, next) => {
+router.put('/:cardId/likes', celebrate(VALIDATION_OPTIONS.LIKE_CARD), (req, res, next) => {
   const sessionReq = req as unknown as SessionRequest;
   likeCard(sessionReq, res, next);
 });
