@@ -13,10 +13,11 @@ interface Card {
 const getDate = () => Date.now();
 
 const cardSchema = new mongoose.Schema<Card>({
-  likes: {
-    type: [mongoose.Schema.Types.ObjectId],
+  likes: [{
+    type: mongoose.Schema.Types.ObjectId,
     default: [],
-  },
+    ref: 'user',
+  }],
   name: {
     type: String,
     required: true,
