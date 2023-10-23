@@ -3,6 +3,7 @@ import mongoose from 'mongoose';
 import {
   celebrate, errors, Segments, Joi,
 } from 'celebrate';
+import { URL_PATTERN } from './consts';
 import { ERROR_MESSAGE } from './errors/type';
 import { errorHandler, NotFoundError } from './errors';
 import { login, createUser } from './controllers/user';
@@ -26,9 +27,9 @@ app.post('/signin', celebrate({
 }), login);
 app.post('/signup', celebrate({
   [Segments.BODY]: Joi.object().keys({
-    name: Joi.string(),
-    about: Joi.string(),
-    avatar: Joi.string(),
+    name: Joi.string().min(2).max(30).required(),
+    about: Joi.string().min(2).max(30).required(),
+    avatar: Joi.string().required().pattern(URL_PATTERN),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
   }),
