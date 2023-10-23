@@ -2,17 +2,15 @@ import { Request, Response, NextFunction } from 'express';
 import { ForbiddenError } from '../errors/forbidden';
 import { NotFoundError, ERROR_MESSAGE } from '../errors';
 import { SessionRequest } from '../middlewares/auth';
-import { getUserIdFromRequest } from './user';
 import CardModel from '../models/card';
 
 const createCard = async (req: SessionRequest, res: Response, next: NextFunction) => {
   try {
     const { name, link } = req.body;
-    const userId = getUserIdFromRequest(req);
     const card = await CardModel.create({
       name,
       link,
-      owner: userId,
+      owner: req.user._id,
     });
     return res.status(201).send(card);
   } catch (error) {
@@ -36,8 +34,7 @@ const deleteCard = async (req: SessionRequest, res: Response, next: NextFunction
     const card = await CardModel.findById(req.params.cardId).orFail(() => {
       throw new NotFoundError(ERROR_MESSAGE.NoCardById);
     });
-    const userId = getUserIdFromRequest(req);
-    if (userId !== card.owner.toString()) {
+    if (req.user._id !== card.owner.toString()) {
       throw new ForbiddenError(ERROR_MESSAGE.SomeoneElsesCard);
     }
     await card.remove();
@@ -50,10 +47,9 @@ const deleteCard = async (req: SessionRequest, res: Response, next: NextFunction
 
 const likeCard = async (req: SessionRequest, res: Response, next: NextFunction) => {
   try {
-    const userId = getUserIdFromRequest(req);
     const card = await CardModel.findByIdAndUpdate(
       req.params.cardId,
-      { $addToSet: { likes: userId } },
+      { $addToSet: { likes: req.user._id } },
       { new: true },
     ).orFail(() => {
       throw new NotFoundError(ERROR_MESSAGE.NoCardById);
@@ -65,12 +61,11 @@ const likeCard = async (req: SessionRequest, res: Response, next: NextFunction) 
   }
 };
 
-const dislikeCard = async (req: Request, res: Response, next: NextFunction) => {
+const dislikeCard = async (req: SessionRequest, res: Response, next: NextFunction) => {
   try {
-    const userId = getUserIdFromRequest(req);
     const card = await CardModel.findByIdAndUpdate(
       req.params.cardId,
-      { $pull: { likes: userId } },
+      { $pull: { likes: req.user._id } },
       { new: true },
     ).orFail(() => {
       throw new NotFoundError(ERROR_MESSAGE.NoCardById);

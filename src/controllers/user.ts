@@ -14,16 +14,6 @@ import { SessionRequest } from '../middlewares/auth';
 
 const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 
-export const getUserIdFromRequest = (req: SessionRequest) => {
-  const currentUserId = (typeof req.user === 'string') ? req.user : req.user?._id;
-
-  if (!currentUserId) {
-    throw new NotFoundError(ERROR_MESSAGE.NoUserById);
-  }
-
-  return currentUserId;
-};
-
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const {
@@ -72,10 +62,9 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
 
 export const updateUser = async (req: SessionRequest, res: Response, next: NextFunction) => {
   try {
-    const userId = getUserIdFromRequest(req);
     const { name, about } = req.body;
     const user = await UserModel.findByIdAndUpdate(
-      userId,
+      req.user._id,
       { name, about },
       { new: true },
     ).orFail(() => {
@@ -90,13 +79,12 @@ export const updateUser = async (req: SessionRequest, res: Response, next: NextF
 
 export const updateUserAvatar = async (req: SessionRequest, res: Response, next: NextFunction) => {
   try {
-    const userId = getUserIdFromRequest(req);
     const { avatar } = req.body;
     if (!validator.isURL(avatar)) {
       throw new NotValidError(ERROR_MESSAGE.NotValidUrl);
     }
     const user = await UserModel.findByIdAndUpdate(
-      userId,
+      req.user._id,
       { avatar },
       { new: true },
     ).orFail(() => {
@@ -114,17 +102,15 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
     const { email, password } = req.body;
     const user = await UserModel
       .findUserByCredentials(email, password);
-    if (SECRET_KEY) {
-      const token = jwt.sign(
-        { _id: user._id },
-        SECRET_KEY,
-        { expiresIn: '7d' },
-      );
-      res.cookie('jwt', token, {
-        httpOnly: true,
-        maxAge: SEVEN_DAYS,
-      });
-    }
+    const token = jwt.sign(
+      { _id: user._id },
+      SECRET_KEY,
+      { expiresIn: '7d' },
+    );
+    res.cookie('jwt', token, {
+      httpOnly: true,
+      maxAge: SEVEN_DAYS,
+    });
     return res.status(200).send({ message: 'Вход успешен' });
   } catch (error) {
     next(error);
@@ -138,8 +124,7 @@ export const getCurrentUser = async (
   next: NextFunction,
 ) => {
   try {
-    const currentUserId = getUserIdFromRequest(req);
-    const user = await UserModel.findById(currentUserId).orFail(() => {
+    const user = await UserModel.findById(req.user._id).orFail(() => {
       throw new NotFoundError(ERROR_MESSAGE.NoUserById);
     });
     return res.status(200).send(user);

@@ -6,7 +6,7 @@ import {
 import { ERROR_MESSAGE } from './errors/type';
 import { errorHandler, NotFoundError } from './errors';
 import { login, createUser } from './controllers/user';
-import auth from './middlewares/auth';
+import auth, { SessionRequest } from './middlewares/auth';
 import { DB_HOST, PORT } from './config';
 import users from './routes/users';
 import cards from './routes/cards';
@@ -33,7 +33,9 @@ app.post('/signup', celebrate({
     password: Joi.string().required(),
   }),
 }), createUser);
-app.use(auth);
+app.use((req, res, next) => {
+  auth(req as SessionRequest, res, next);
+});
 app.use('/users', users);
 app.use('/cards', cards);
 app.use(() => {

@@ -5,7 +5,7 @@ import { UnauthorizedError } from '../errors/unauthorized';
 import { SECRET_KEY } from '../config';
 
 export interface SessionRequest extends Request {
-  user?: string | JwtPayload;
+  user: JwtPayload;
 }
 
 const extractBearerToken = (header: string) => header.replace('Bearer ', '');
@@ -23,10 +23,9 @@ export default (
   try {
     const token = extractBearerToken(authorization);
     const payload = jwt.verify(token, SECRET_KEY);
-    req.user = payload;
+    req.user = (typeof payload === 'string') ? { _id: payload } : payload;
     next();
   } catch (error) {
     next(error);
   }
-  return null;
 };
