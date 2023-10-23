@@ -8,8 +8,7 @@ import { errorHandler, NotFoundError } from './errors';
 import { login, createUser } from './controllers/user';
 import auth, { SessionRequest } from './middlewares/auth';
 import { DB_HOST, PORT } from './config';
-import users from './routes/users';
-import cards from './routes/cards';
+import { users, cards } from './routes';
 import { requestLogger, errorLogger } from './middlewares/logger';
 import { VALIDATION_OPTIONS } from './validation';
 
