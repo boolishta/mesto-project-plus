@@ -40,7 +40,7 @@ const deleteCard = async (req: SessionRequest, res: Response, next: NextFunction
     if (userId !== card.owner.toString()) {
       throw new ForbiddenError(ERROR_MESSAGE.SomeoneElsesCard);
     }
-    card.remove();
+    await card.remove();
     return res.status(200).send({ message: 'Карточка удалена' });
   } catch (error) {
     next(error);

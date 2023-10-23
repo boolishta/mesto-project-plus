@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from 'express';
 import jwt, { JwtPayload } from 'jsonwebtoken';
+import { ERROR_MESSAGE } from '../errors/type';
+import { UnauthorizedError } from '../errors/unauthorized';
 import { SECRET_KEY } from '../config';
-import { handleAuthError } from '../errors';
 
 export interface SessionRequest extends Request {
   user?: string | JwtPayload;
@@ -17,7 +18,7 @@ export default (
   const { authorization } = req.headers;
 
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    return handleAuthError(res);
+    throw new UnauthorizedError(ERROR_MESSAGE.AuthorizationRequired);
   }
   try {
     const token = extractBearerToken(authorization);
@@ -27,7 +28,7 @@ export default (
     }
     next();
   } catch (error) {
-    return handleAuthError(res);
+    next(error);
   }
   return null;
 };

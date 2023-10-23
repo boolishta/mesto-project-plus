@@ -6,12 +6,6 @@ import { NotValidError } from './not-valid';
 import { ERROR_MESSAGE, StatusCodeError } from './type';
 import { UnauthorizedError } from './unauthorized';
 
-const handleAuthError = (res: Response) => {
-  res
-    .status(401)
-    .send({ message: ERROR_MESSAGE.AuthorizationRequired });
-};
-
 const errorHandler = (error: StatusCodeError, req: Request, res: Response) => {
   const { statusCode = 500, message } = error;
   return res.status(statusCode).send({
@@ -28,6 +22,5 @@ export {
   NotValidError,
   UnauthorizedError,
   ERROR_MESSAGE,
-  handleAuthError,
   errorHandler,
 };

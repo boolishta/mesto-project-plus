@@ -1,7 +1,7 @@
 export type StatusCode = 404 | 401 | 409 | 400 | 403
 
 export interface StatusCodeError extends Error {
-  statusCode?: StatusCode
+  statusCode: StatusCode
 }
 
 export const ERROR_MESSAGE = {

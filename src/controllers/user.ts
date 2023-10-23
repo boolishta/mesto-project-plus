@@ -53,8 +53,8 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
 
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const user = await UserModel.find();
-    return res.status(200).send(user);
+    const users = await UserModel.find();
+    return res.status(200).send(users);
   } catch (error) {
     next(error);
     return null;

@@ -1,7 +1,7 @@
 import { StatusCode, StatusCodeError } from './type';
 
 export class DuplicateError extends Error implements StatusCodeError {
-  statusCode?: StatusCode;
+  statusCode: StatusCode;
 
   constructor(message: string) {
     super(message);
