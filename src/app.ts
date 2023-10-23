@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 import {
   celebrate, errors, Segments, Joi,
 } from 'celebrate';
-import { errorHandler } from './errors/index';
+import { ERROR_MESSAGE } from './errors/type';
+import { errorHandler, NotFoundError } from './errors';
 import { login, createUser } from './controllers/user';
 import auth from './middlewares/auth';
 import { DB_HOST, PORT } from './config';
@@ -35,6 +36,9 @@ app.post('/signup', celebrate({
 app.use(auth);
 app.use('/users', users);
 app.use('/cards', cards);
+app.use(() => {
+  throw new NotFoundError(ERROR_MESSAGE.PageNotFound);
+});
 
 app.use(errorLogger);
 

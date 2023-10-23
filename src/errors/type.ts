@@ -14,4 +14,5 @@ export const ERROR_MESSAGE = {
   NotValidUrl: 'Не верный формат URL',
   NotValidEmail: 'Неправильный формат почты',
   SomeoneElsesCard: 'Чужая карточка',
+  PageNotFound: 'Страница не найдена',
 };
