@@ -4,7 +4,6 @@ import bcrypt from 'bcrypt';
 import validator from 'validator';
 import {
   NotValidError,
-  errorHandler,
   ERROR_MESSAGE,
 } from '../errors';
 import UserModel from '../models/user';
@@ -36,16 +35,13 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
       avatar,
       email,
       password: await bcrypt.hash(password, 10),
+    }).catch((error) => {
+      if (error.code === 11000) {
+        throw new DuplicateError(ERROR_MESSAGE.DuplicateEmail);
+      }
     });
     return res.status(200).send(user);
-  } catch (error: any) {
-    if (error.code === 11000) {
-      return errorHandler(
-        new DuplicateError(ERROR_MESSAGE.DuplicateEmail),
-        req,
-        res,
-      );
-    }
+  } catch (error) {
     next(error);
     return null;
   }
