@@ -10,6 +10,8 @@ interface Card {
   createdAt: Date
 }
 
+const getDate = () => Date.now();
+
 const cardSchema = new mongoose.Schema<Card>({
   likes: {
     type: [mongoose.Schema.Types.ObjectId],
@@ -31,11 +33,11 @@ const cardSchema = new mongoose.Schema<Card>({
   },
   createdAt: {
     type: Date,
-    default: Date.now(),
+    default: getDate,
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: 'user',
     required: true,
   },
 });
