@@ -5,10 +5,10 @@ import validator from 'validator';
 import {
   NotValidError,
   ERROR_MESSAGE,
+  DuplicateError,
 } from '../errors';
 import UserModel from '../models/user';
 import { NotFoundError } from '../errors/not-found';
-import { DuplicateError } from '../errors/duplicate';
 import { SECRET_KEY } from '../config';
 import { SessionRequest } from '../middlewares/auth';
 
@@ -16,34 +16,36 @@ const SEVEN_DAYS = 7 * 24 * 60 * 60 * 1000;
 
 export const createUser = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const {
-      name, about, avatar, email, password,
-    } = req.body;
+    const hash = await bcrypt.hash(req.body.password, 10);
     const user = await UserModel.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: await bcrypt.hash(password, 10),
-    }).catch((error) => {
-      if (error.code === 11000) {
-        throw new DuplicateError(ERROR_MESSAGE.DuplicateEmail);
-      }
+      name: req.body.name,
+      about: req.body.about,
+      avatar: req.body.avatar,
+      email: req.body.email,
+      password: hash,
     });
-    return res.status(200).send(user);
-  } catch (error) {
-    next(error);
-    return null;
+    res.status(201).send({
+      name: user.name,
+      about: user.about,
+      avatar: user.avatar,
+      email: user.email,
+      password: user.password,
+    });
+  } catch (error: any) {
+    if (error.code === 11000) {
+      next(new DuplicateError(ERROR_MESSAGE.DuplicateEmail));
+    } else {
+      next(error);
+    }
   }
 };
 
 export const getUsers = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const users = await UserModel.find();
-    return res.status(200).send(users);
+    res.status(200).send(users);
   } catch (error) {
     next(error);
-    return null;
   }
 };
 
@@ -53,10 +55,9 @@ export const getUserById = async (req: Request, res: Response, next: NextFunctio
     const user = await UserModel.findById(userId).orFail(() => {
       throw new NotFoundError(ERROR_MESSAGE.NoUserById);
     });
-    return res.status(200).send(user);
+    res.status(200).send(user);
   } catch (error) {
     next(error);
-    return null;
   }
 };
 
@@ -70,10 +71,9 @@ export const updateUser = async (req: SessionRequest, res: Response, next: NextF
     ).orFail(() => {
       throw new NotFoundError(ERROR_MESSAGE.NoUserById);
     });
-    return res.status(200).send(user);
+    res.status(200).send(user);
   } catch (error) {
     next(error);
-    return null;
   }
 };
 
@@ -90,10 +90,9 @@ export const updateUserAvatar = async (req: SessionRequest, res: Response, next:
     ).orFail(() => {
       throw new NotFoundError(ERROR_MESSAGE.NoUserById);
     });
-    return res.status(200).send(user);
+    res.status(200).send(user);
   } catch (error) {
     next(error);
-    return null;
   }
 };
 
@@ -111,10 +110,9 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
       httpOnly: true,
       maxAge: SEVEN_DAYS,
     });
-    return res.status(200).send({ message: 'Вход успешен' });
+    res.status(200).send({ message: 'Вход успешен' });
   } catch (error) {
     next(error);
-    return null;
   }
 };
 
@@ -127,9 +125,8 @@ export const getCurrentUser = async (
     const user = await UserModel.findById(req.user._id).orFail(() => {
       throw new NotFoundError(ERROR_MESSAGE.NoUserById);
     });
-    return res.status(200).send(user);
+    res.status(200).send(user);
   } catch (error) {
     next(error);
-    return null;
   }
 };
