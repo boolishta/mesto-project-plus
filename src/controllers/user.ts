@@ -67,7 +67,7 @@ export const updateUser = async (req: SessionRequest, res: Response, next: NextF
     const user = await UserModel.findByIdAndUpdate(
       req.user._id,
       { name, about },
-      { new: true },
+      { new: true, runValidators: true },
     ).orFail(() => {
       throw new NotFoundError(ERROR_MESSAGE.NoUserById);
     });
@@ -86,7 +86,7 @@ export const updateUserAvatar = async (req: SessionRequest, res: Response, next:
     const user = await UserModel.findByIdAndUpdate(
       req.user._id,
       { avatar },
-      { new: true },
+      { new: true, runValidators: true },
     ).orFail(() => {
       throw new NotFoundError(ERROR_MESSAGE.NoUserById);
     });
