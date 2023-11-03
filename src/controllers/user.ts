@@ -1,9 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import validator from 'validator';
 import {
-  NotValidError,
   ERROR_MESSAGE,
   DuplicateError,
 } from '../errors';
@@ -80,9 +78,6 @@ export const updateUser = async (req: SessionRequest, res: Response, next: NextF
 export const updateUserAvatar = async (req: SessionRequest, res: Response, next: NextFunction) => {
   try {
     const { avatar } = req.body;
-    if (!validator.isURL(avatar)) {
-      throw new NotValidError(ERROR_MESSAGE.NotValidUrl);
-    }
     const user = await UserModel.findByIdAndUpdate(
       req.user._id,
       { avatar },
