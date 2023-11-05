@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { ForbiddenError } from '../errors/forbidden';
-import { NotFoundError, ERROR_MESSAGE } from '../errors';
+import { NotFoundError, ERROR_MESSAGE, BadRequestError } from '../errors';
 import { SessionRequest } from '../middlewares/auth';
 import CardModel from '../models/card';
 
@@ -12,36 +12,39 @@ const createCard = async (req: SessionRequest, res: Response, next: NextFunction
       link,
       owner: req.user._id,
     });
-    return res.status(201).send(card);
-  } catch (error) {
-    next(error);
-    return null;
+    res.status(201).send(card);
+  } catch (error: any) {
+    if (error.code === 400) {
+      next(new BadRequestError(ERROR_MESSAGE.IncorrectDataTransmitted));
+    } else {
+      next(error);
+    }
   }
 };
 
 const getCards = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const cards = await CardModel.find();
-    return res.status(200).send(cards);
+    res.status(200).send(cards);
   } catch (error) {
     next(error);
-    return null;
   }
 };
 
 const deleteCard = async (req: SessionRequest, res: Response, next: NextFunction) => {
   try {
-    const card = await CardModel.findById(req.params.cardId).orFail(() => {
-      throw new NotFoundError(ERROR_MESSAGE.NoCardById);
-    });
+    const card = await CardModel
+      .findById(req.params.cardId)
+      .orFail(() => {
+        throw new NotFoundError(ERROR_MESSAGE.NoCardById);
+      });
     if (req.user._id !== card.owner.toString()) {
       throw new ForbiddenError(ERROR_MESSAGE.SomeoneElsesCard);
     }
     await card.remove();
-    return res.status(200).send({ message: 'Карточка удалена' });
+    res.status(200).send({ message: 'Карточка удалена' });
   } catch (error) {
     next(error);
-    return null;
   }
 };
 
@@ -54,26 +57,25 @@ const likeCard = async (req: SessionRequest, res: Response, next: NextFunction) 
     ).orFail(() => {
       throw new NotFoundError(ERROR_MESSAGE.NoCardById);
     });
-    return res.status(200).send(card);
+    res.status(200).send(card);
   } catch (error) {
     next(error);
-    return null;
   }
 };
 
 const dislikeCard = async (req: SessionRequest, res: Response, next: NextFunction) => {
   try {
-    const card = await CardModel.findByIdAndUpdate(
-      req.params.cardId,
-      { $pull: { likes: req.user._id } },
-      { new: true, runValidators: true },
-    ).orFail(() => {
-      throw new NotFoundError(ERROR_MESSAGE.NoCardById);
-    });
-    return res.status(200).send(card);
+    const card = await CardModel
+      .findByIdAndUpdate(
+        req.params.cardId,
+        { $pull: { likes: req.user._id } },
+        { new: true, runValidators: true },
+      ).orFail(() => {
+        throw new NotFoundError(ERROR_MESSAGE.NoCardById);
+      });
+    res.status(200).send(card);
   } catch (error) {
     next(error);
-    return null;
   }
 };
 
