@@ -20,7 +20,7 @@ export const VALIDATION_OPTIONS = {
   },
   USER_ID: {
     [Segments.PARAMS]: {
-      userId: Joi.string().required(),
+      userId: Joi.string().hex().length(24).required(),
     },
   },
   AVATAR: {
@@ -42,17 +42,17 @@ export const VALIDATION_OPTIONS = {
   },
   DELETE_CARD: {
     [Segments.PARAMS]: {
-      cardId: Joi.string().required(),
+      cardId: Joi.string().hex().length(24).required(),
     },
   },
   DISLIKE_CARD: {
     [Segments.PARAMS]: {
-      cardId: Joi.string().required(),
+      cardId: Joi.string().hex().length(24).required(),
     },
   },
   LIKE_CARD: {
     [Segments.PARAMS]: {
-      cardId: Joi.string().required(),
+      cardId: Joi.string().hex().length(24).required(),
     },
   },
 };
