@@ -15,17 +15,15 @@ export default (
   res: Response,
   next: NextFunction,
 ) => {
-  const { authorization } = req.headers;
-
-  if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new UnauthorizedError(ERROR_MESSAGE.AuthorizationRequired);
-  }
   try {
+    const { authorization } = req.headers;
+    if (!authorization || !authorization.startsWith('Bearer ')) {
+      throw new UnauthorizedError(ERROR_MESSAGE.Server);
+    }
     const token = extractBearerToken(authorization);
-    const payload = jwt.verify(token, SECRET_KEY);
-    req.user = (typeof payload === 'string') ? { _id: payload } : payload;
+    req.user = jwt.verify(token, SECRET_KEY) as JwtPayload;
     next();
   } catch (error) {
-    next(error);
+    next(new UnauthorizedError(ERROR_MESSAGE.AuthorizationRequired));
   }
 };
