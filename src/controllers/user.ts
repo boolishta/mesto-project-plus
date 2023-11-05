@@ -1,9 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { InternalServerError } from '../errors/internal-server';
 import {
   ERROR_MESSAGE,
   DuplicateError,
+  BadRequestError,
 } from '../errors';
 import UserModel from '../models/user';
 import { NotFoundError } from '../errors/not-found';
@@ -32,6 +34,10 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
   } catch (error: any) {
     if (error.code === 11000) {
       next(new DuplicateError(ERROR_MESSAGE.DuplicateEmail));
+    } else if (error.code === 500) {
+      next(new InternalServerError(ERROR_MESSAGE.Server));
+    } else if (error.code === 400) {
+      next(new BadRequestError(ERROR_MESSAGE.IncorrectDataTransmitted));
     } else {
       next(error);
     }
@@ -70,8 +76,12 @@ export const updateUser = async (req: SessionRequest, res: Response, next: NextF
       throw new NotFoundError(ERROR_MESSAGE.NoUserById);
     });
     res.status(200).send(user);
-  } catch (error) {
-    next(error);
+  } catch (error: any) {
+    if (error.code === 400) {
+      next(new BadRequestError(ERROR_MESSAGE.IncorrectDataTransmitted));
+    } else {
+      next(error);
+    }
   }
 };
 
@@ -86,8 +96,12 @@ export const updateUserAvatar = async (req: SessionRequest, res: Response, next:
       throw new NotFoundError(ERROR_MESSAGE.NoUserById);
     });
     res.status(200).send(user);
-  } catch (error) {
-    next(error);
+  } catch (error: any) {
+    if (error.code === 400) {
+      next(new BadRequestError(ERROR_MESSAGE.IncorrectDataTransmitted));
+    } else {
+      next(error);
+    }
   }
 };
 
@@ -117,9 +131,11 @@ export const getCurrentUser = async (
   next: NextFunction,
 ) => {
   try {
-    const user = await UserModel.findById(req.user._id).orFail(() => {
-      throw new NotFoundError(ERROR_MESSAGE.NoUserById);
-    });
+    const user = await UserModel
+      .findById(req.user._id)
+      .orFail(() => {
+        throw new NotFoundError(ERROR_MESSAGE.NoUserById);
+      });
     res.status(200).send(user);
   } catch (error) {
     next(error);

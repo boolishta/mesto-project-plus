@@ -1,6 +1,6 @@
 import { StatusCodeError, StatusCode } from './type';
 
-export class NotValidError extends Error implements StatusCodeError {
+export class BadRequestError extends Error implements StatusCodeError {
   statusCode: StatusCode;
 
   constructor(message: string) {

@@ -1,4 +1,4 @@
-export type StatusCode = 404 | 401 | 409 | 400 | 403
+export type StatusCode = 404 | 401 | 409 | 400 | 403 | 500
 
 export interface StatusCodeError extends Error {
   statusCode: StatusCode
@@ -15,4 +15,5 @@ export const ERROR_MESSAGE = {
   NotValidEmail: 'Неправильный формат почты',
   SomeoneElsesCard: 'Чужая карточка',
   PageNotFound: 'Страница не найдена',
+  IncorrectDataTransmitted: 'Переданы некорректные данные',
 };

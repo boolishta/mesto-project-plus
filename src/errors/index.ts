@@ -2,7 +2,7 @@ import { Request, Response } from 'express';
 import { ForbiddenError } from './forbidden';
 import { DuplicateError } from './duplicate';
 import { NotFoundError } from './not-found';
-import { NotValidError } from './not-valid';
+import { BadRequestError } from './bad-request';
 import { ERROR_MESSAGE, StatusCodeError } from './type';
 import { UnauthorizedError } from './unauthorized';
 
@@ -19,7 +19,7 @@ export {
   DuplicateError,
   ForbiddenError,
   NotFoundError,
-  NotValidError,
+  BadRequestError,
   UnauthorizedError,
   ERROR_MESSAGE,
   errorHandler,
