@@ -53,7 +53,7 @@ const likeCard = async (req: SessionRequest, res: Response, next: NextFunction) 
     const card = await CardModel.findByIdAndUpdate(
       req.params.cardId,
       { $addToSet: { likes: req.user._id } },
-      { new: true, runValidators: true },
+      { new: true },
     ).orFail(() => {
       throw new NotFoundError(ERROR_MESSAGE.NoCardById);
     });
@@ -69,7 +69,7 @@ const dislikeCard = async (req: SessionRequest, res: Response, next: NextFunctio
       .findByIdAndUpdate(
         req.params.cardId,
         { $pull: { likes: req.user._id } },
-        { new: true, runValidators: true },
+        { new: true },
       ).orFail(() => {
         throw new NotFoundError(ERROR_MESSAGE.NoCardById);
       });
