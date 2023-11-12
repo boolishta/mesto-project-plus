@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
+import { InternalServerError } from '../errors/internal-server';
 import { ForbiddenError } from '../errors/forbidden';
-import { NotFoundError, ERROR_MESSAGE, BadRequestError } from '../errors';
+import { NotFoundError, ERROR_MESSAGE } from '../errors';
 import { SessionRequest } from '../middlewares/auth';
 import CardModel from '../models/card';
 
@@ -12,13 +13,12 @@ const createCard = async (req: SessionRequest, res: Response, next: NextFunction
       link,
       owner: req.user._id,
     });
-    res.status(201).send(card);
-  } catch (error: any) {
-    if (error.code === 400) {
-      next(new BadRequestError(ERROR_MESSAGE.IncorrectDataTransmitted));
-    } else {
-      next(error);
+    if (!card) {
+      throw new InternalServerError(ERROR_MESSAGE.Server);
     }
+    res.status(201).send(card);
+  } catch (error) {
+    next(error);
   }
 };
 
