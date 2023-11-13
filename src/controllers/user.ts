@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { InternalServerError } from '../errors/internal-server';
 import {
   ERROR_MESSAGE,
   DuplicateError,
@@ -23,9 +22,6 @@ export const createUser = async (req: Request, res: Response, next: NextFunction
       email: req.body.email,
       password: hash,
     });
-    if (!user) {
-      throw new InternalServerError(ERROR_MESSAGE.Server);
-    }
     return res.status(201).send({
       name: user.name,
       about: user.about,

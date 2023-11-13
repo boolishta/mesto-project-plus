@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express';
-import { InternalServerError } from '../errors/internal-server';
 import { ForbiddenError } from '../errors/forbidden';
 import { NotFoundError, ERROR_MESSAGE } from '../errors';
 import { SessionRequest } from '../middlewares/auth';
@@ -13,9 +12,6 @@ const createCard = async (req: SessionRequest, res: Response, next: NextFunction
       link,
       owner: req.user._id,
     });
-    if (!card) {
-      throw new InternalServerError(ERROR_MESSAGE.Server);
-    }
     res.status(201).send(card);
   } catch (error) {
     next(error);
